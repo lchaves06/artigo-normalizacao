@@ -1,6 +1,6 @@
 # Da Planilha ao Modelo Relacional: 1FN, 2FN, 3FN, BCNF, 4FN e 5FN
 
-Este repositório contém o artigo técnico e os scripts SQL desenvolvidos para a disciplina de Modelagem de Banco de Dados, sob orientação da Profª Drª Andréa Ono Sakai (Braz Cubas).
+Este repositório contém o artigo técnico e os scripts SQL desenvolvidos para a disciplina de Modelagem de Banco de Dados, sob orientação da Profª Andréa Ono Sakai (Braz Cubas).
 
 - **URL da Página Publicada:** [Inserir o link do GitHub Pages aqui]
 - **SGBD Utilizado:** PostgreSQL 16
@@ -8,11 +8,11 @@ Este repositório contém o artigo técnico e os scripts SQL desenvolvidos para 
 ## Integrantes do Grupo
 - **Marcelo Ludin** ([GitHub](https://github.com/MarceloLudin) | [LinkedIn](https://www.linkedin.com/in/marcelo-ludin-050a9a340))
 - **Carina Tutihashi** ([GitHub](https://github.com/carinatut14-wq) | [LinkedIn](https://www.linkedin.com/in/carina-tutihashi-96b3a33a4))
-- **Rafael Azevedo** ([GitHub](https://github.com/) | [LinkedIn](https://www.linkedin.com/in/rafael-azevedo-7856302a3))
+- **Rafael Azevedo** ([GitHub](https://github.com/Rafael1708) | [LinkedIn](https://www.linkedin.com/in/rafael-azevedo-7856302a3))
 - **Ana Clara Macedo** ([GitHub](https://github.com/AnaClaraMaced) | [LinkedIn](https://www.linkedin.com/in/ana-clara-macedo-4b327337b))
-- **Murilo dos Santos** ([GitHub](https://github.com/) | [LinkedIn](https://www.linkedin.com/in/murilo-dos-santos-80a3b7424))
+- **Murilo dos Santos** ([GitHub](https://github.com/MuriloSantos111) | [LinkedIn](https://www.linkedin.com/in/murilo-dos-santos-80a3b7424))
 - **Lucas Rodrigues** ([GitHub](https://github.com/lchaves06))
-- **Pablo Gonçalves**
+- **Pablo Gonçalves** ([GitHub](https://github.com/PabloFDSNTS))
 
 ## Estrutura de Arquivos
 - `/` — Código-fonte da página web (`index.html`, `style.css`).
