@@ -544,3 +544,76 @@ tbody tr:last-child td {
   object-fit: cover;
   background: var(--color-white);
 }
+
+
+/* Figuras */
+figure { margin: 1.5rem 0; max-width: 100%; }
+figure svg { display: block; width: 100%; max-width: 32rem; height: auto; }
+figcaption { font-size: 0.9rem; color: var(--color-ink-soft); margin-top: 0.5rem; max-width: 32rem; }
+
+.authors-section {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.1rem;
+        margin-top: 1.5rem;
+    }
+
+    .author-card {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.25rem;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: linear-gradient(160deg, #fff, #f8faff);
+        box-shadow: 0 3px 12px rgb(20 40 75 / 4%);
+        transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+    }
+
+    .author-card:hover {
+        transform: translateY(-5px);
+        border-color: #9cc8e8;
+        box-shadow: var(--shadow-md);
+    }
+
+    .author-card img {
+        width: 84px;
+        height: 84px;
+        margin-bottom: 1rem;
+        border: 3px solid #e0effb;
+        border-radius: 50%;
+        background: #e9eff7;
+        object-fit: cover;
+    }
+
+    .author-card h3 {
+        margin: 0 0 .5rem;
+        color: var(--brand-dark);
+        font-size: 1.08rem;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+    .author-card p {
+        margin: 0 0 .8rem;
+        color: var(--muted);
+        font-size: .9rem;
+        line-height: 1.6;
+    }
+
+    .author-card p:last-child {
+        margin-top: auto;
+        margin-bottom: 0;
+        padding-top: .6rem;
+    }
+
+    .author-card a {
+        font-size: .88rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .author-card a:hover {
+        text-decoration: underline;
+    }
