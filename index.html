@@ -3,12 +3,14 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Da Planilha ao Modelo Relacional — 1FN a 5FN</title>
+    <title>Da Planilha ao Modelo Relacional: 1FN a 5FN</title>
     
     <!-- Fontes e Estilos -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,560;0,6..72,650;1,6..72,400;1,6..72,560&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Destaque de sintaxe do SQL (carrega antes do nosso CSS) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="style.css">
   </head>
   
@@ -26,9 +28,13 @@
         <h1>Da planilha ao modelo relacional</h1>
         <p class="lede">Como organizar tabelas sem repetir informação: 1FN, 2FN, 3FN, BCNF, 4FN e 5FN, com exemplos e SQL para quem está começando em TI.</p>
         <div class="byline">
-          <span><strong>Autores.</strong> Marcelo Ludin, Carina Tutihashi, Rafael Azevedo, Ana Clara Macedo, Murilo dos Santos, Lucas Rodrigues e Pablo Gonçalves</span>
-          <span><strong>Publicado.</strong> 17 de outubro de 2026</span>
-          <span><strong>SGBD.</strong> PostgreSQL 16</span>
+          <span class="byline-authors"><strong>Autores.</strong>
+          <span class="byline-people">
+             <span> Marcelo Ludin, Carina Tutihashi, Rafael Azevedo, Ana Clara Macedo, Murilo dos Santos, Lucas Rodrigues e Pablo Gonçalves</span>
+ 
+          <span><strong>Publicado.</strong> <time datetime="2026-10-17">17 de outubro de 2026</time></span>
+          <span><strong>Revisado.</strong> <time datetime="2026-10-19">19 de outubro de 2026</time></span>
+          <span><strong>Banco de dados.</strong> PostgreSQL 16</span>
         </div>
       </div>
     </header>
@@ -49,12 +55,13 @@
             <li><a href="#comecar"><span class="toc-num">06</span> <span>Como começar</span></a></li>
             <li><a href="#conclusao"><span class="toc-num">07</span> <span>Conclusão</span></a></li>
             <li><a href="#glossario"><span class="toc-num">08</span> <span>Glossário</span></a></li>
-            <li><a href="#referencias"><span class="toc-num">09</span> <span>Referências</span></a></li>
-            <li><a href="#autores"><span class="toc-num">10</span> <span>Autores</span></a></li>
+            <li><a href="#links"><span class="toc-num">09</span> <span>Para ir além</span></a></li>
+            <li><a href="#referencias"><span class="toc-num">10</span> <span>Referências</span></a></li>
+            <li><a href="#autores"><span class="toc-num">11</span> <span>Autores</span></a></li>
           </ol>
         </nav>
 
-        <!-- Menu responsivo para telemóveis -->
+        <!-- Menu responsivo para celulares -->
         <details class="mobile-toc">
           <summary>Neste artigo</summary>
           <ol class="toc-list">
@@ -66,8 +73,9 @@
             <li><a href="#comecar"><span class="toc-num">06</span> <span>Como começar</span></a></li>
             <li><a href="#conclusao"><span class="toc-num">07</span> <span>Conclusão</span></a></li>
             <li><a href="#glossario"><span class="toc-num">08</span> <span>Glossário</span></a></li>
-            <li><a href="#referencias"><span class="toc-num">09</span> <span>Referências</span></a></li>
-            <li><a href="#autores"><span class="toc-num">10</span> <span>Autores</span></a></li>
+            <li><a href="#links"><span class="toc-num">09</span> <span>Para ir além</span></a></li>
+            <li><a href="#referencias"><span class="toc-num">10</span> <span>Referências</span></a></li>
+            <li><a href="#autores"><span class="toc-num">11</span> <span>Autores</span></a></li>
           </ol>
         </details>
       </aside>
@@ -78,10 +86,10 @@
         <!-- Seção 01: Introdução -->
         <section id="introducao">
           <h2><span class="sec">01 · Introdução</span> O e-mail que mudou em três lugares</h2>
-          <p>Quase todo sistema começa como uma planilha: uma linha para cada coisa que aconteceu, com tudo escrito junto. Funciona até o dia em que um e-mail muda e precisa ser corrigido em vinte lugares. Neste artigo, vamos pegar a planilha de pedidos de uma loja e transformá-la, passo a passo, em tabelas organizadas, passando pela 1FN, 2FN e 3FN. Depois, em três exemplos menores, veremos o que fazer quando a 3FN ainda deixa informação repetida: BCNF, 4FN e 5FN. Todos os exemplos usam dados fictícios, trazem scripts SQL para PostgreSQL 16 e mostram onde cada método falha.</p>
+          <p>Quase todo sistema começa como uma planilha: uma linha para cada coisa que aconteceu, com tudo escrito junto. Funciona até o dia em que um e-mail muda e precisa ser corrigido em vários lugares. Neste artigo, vamos pegar a planilha de pedidos de uma loja e transformá-la, passo a passo, em tabelas organizadas, passando pela 1FN, 2FN e 3FN. Depois, em três exemplos menores, veremos o que fazer quando a 3FN ainda deixa informação repetida: BCNF, 4FN e 5FN. Todos os exemplos usam dados fictícios, trazem scripts SQL para PostgreSQL 16 (um SGBD, ou Sistema Gerenciador de Banco de Dados: o programa que guarda e consulta os dados) e mostram onde cada método falha.</p>
           <p>Imagine que a Ana, cliente de uma loja de cafés especiais, avisa que trocou de e-mail. Na planilha de pedidos da loja, o e-mail dela aparece em todas as linhas dos pedidos que ela já fez. Quem vai atualizar precisa achar todas essas linhas. Se esquecer uma, a mesma cliente fica com dois e-mails, e ninguém sabe qual vale.</p>
-          <p>É esse tipo de problema que a normalização resolve. Normalizar é organizar as tabelas de um banco de dados para que cada informação fique guardada em um único lugar. Para isso, seguimos regras chamadas formas normais, criadas a partir dos anos 1970 por Edgar F. Codd e outros pesquisadores. Cada forma normal é um nível de organização: quanto mais alto, menos repetição sobra.</p>
-          <p class="note">Durante a elaboração dos exemplos práticos deste projeto, o grupo viveu esse desafio na pele: ao tentar importar uma planilha plana com históricos de pedidos e preços de produtos, um único registro duplicado ou atualizado manualmente gerava inconsistências nos cálculos. Essa vivência reforçou a importância de estruturar o banco desde o primeiro dia.</p>
+          <p>É esse tipo de problema que a normalização resolve. Normalizar é organizar as tabelas de um banco de dados para que cada informação fique guardada em um único lugar. Para isso, seguimos regras chamadas formas normais, criadas a partir dos anos 1970 por Edgar F. Codd (CODD, 1970, 1972) e outros pesquisadores. Cada forma normal é um nível de organização: quanto mais alto, menos repetição sobra.</p>
+          <!-- OPCIONAL: um parágrafo curto com algo que o grupo realmente viveu (um erro, uma dúvida). Só escreva se aconteceu. -->
           <p>Ao final deste artigo, você será capaz de:</p>
           <ul>
             <li>perceber quando uma tabela repete informação e explicar o problema que isso causa;</li>
@@ -89,7 +97,7 @@
             <li>reconhecer quando a 3FN não basta e saber o que são BCNF, 4FN e 5FN;</li>
             <li>explicar por que normalizar nem sempre é a melhor escolha.</li>
           </ul>
-          <p>Presumimos que você já programa e viu o básico de SQL (SELECT, INSERT, JOIN). Em todo o texto, o exemplo vem primeiro e o nome técnico depois. As definições mais formais ficam em caixas de aprofundamento, que você pode pular sem perder o fio.</p>
+          <p>Presumimos que você já programa e viu o básico de SQL (SELECT, INSERT, JOIN). Em todo o texto, o exemplo vem primeiro e o nome técnico depois. As definições mais formais ficam em caixas de aprofundamento, que você pode pular sem perder o fio. Cada termo novo é explicado quando aparece, e no final há um glossário para consulta.</p>
         </section>
 
         <!-- Seção 02: Da Planilha à 3FN -->
@@ -180,7 +188,8 @@
             <span>Script 1 · PostgreSQL 16</span>
             <span>pedido_plano</span>
           </div>
-          <pre><code>CREATE TABLE pedido_plano (
+          <pre><code class="language-sql">-- A planilha importada como uma única tabela
+CREATE TABLE pedido_plano (
     id_pedido INT,
     data_pedido DATE,
     nome_cliente VARCHAR(80),
@@ -194,12 +203,14 @@
     PRIMARY KEY (id_pedido, cod_produto)
 );
 
+-- Quatro itens vendidos (dados fictícios)
 INSERT INTO pedido_plano VALUES
 (1001, '2026-03-02', 'Ana Souza', 'ana@email.com', 'Campinas', 'CF01', 'Café Especial 250g', 'Cafés', 32.90, 2),
 (1001, '2026-03-02', 'Ana Souza', 'ana@email.com', 'Campinas', 'FP01', 'Filtro de Papel 103', 'Acessórios', 9.50, 1),
 (1002, '2026-03-05', 'Bruno Lima', 'bruno@email.com', 'Santos', 'CF01', 'Café Especial 250g', 'Cafés', 32.90, 1),
 (1003, '2026-03-09', 'Ana Souza', 'ana@email.com', 'Campinas', 'M001', 'Moedor Manual', 'Acessórios', 149.00, 1);
 
+-- Anomalia de atualização: trocar o e-mail da Ana mexe em várias linhas (UPDATE 3)
 UPDATE pedido_plano SET email_cliente = 'ana.souza@email.com' WHERE nome_cliente = 'Ana Souza';</code></pre>
           
           <p>O banco deve responder que o UPDATE alterou 3 linhas. Isso confirma a repetição.</p>
@@ -232,7 +243,7 @@ UPDATE pedido_plano SET email_cliente = 'ana.souza@email.com' WHERE nome_cliente
           </div>
           
           <p>Perguntas simples, como “quantos cafés vendemos?”, ficam difíceis, porque a consulta teria de abrir e interpretar o texto da célula. A regra da 1FN é simples: cada célula guarda um único valor, e não existem colunas repetidas como produto1, produto2, produto3.</p>
-          <p>A correção é criar uma linha para cada item — e isso é exatamente a Tabela 1. Ou seja, a Tabela 1 já está na 1FN. O resto do trabalho é arrumar o que ainda se repete nela.</p>
+          <p>A correção é criar uma linha para cada item. Isso é exatamente a Tabela 1, que portanto já está na 1FN. O resto do trabalho é arrumar o que ainda se repete nela.</p>
           
           <div class="deep-dive">
             <h4>Aprofundamento · o que a 1FN exige</h4>
@@ -279,11 +290,12 @@ UPDATE pedido_plano SET email_cliente = 'ana.souza@email.com' WHERE nome_cliente
             </table>
           </div>
           
-          <p><code>item_pedido</code> guarda um <code>preco_unitario</code> próprio, além do <code>preco_atual</code> do produto. O preço de hoje pode mudar; o preço que o cliente pagou naquele pedido não pode.</p>
+          <p><code>item_pedido</code> guarda um <code>preco_unitario</code> próprio, além do <code>preco_atual</code> do produto. O preço de hoje pode mudar; o preço que o cliente pagou naquele pedido não pode. Ao montar as tabelas novas, usamos o preço da planilha como preço atual de cada produto.</p>
 
           <h3>2.4 Terceira forma normal: nada de coluna que depende de coluna</h3>
           <p>A Ana fez dois pedidos, então nome, e-mail e cidade dela aparecem duas vezes. O pedido determina o cliente, e o cliente determina os dados dele: <code>id_pedido → email</code> e <code>email → nome, cidade</code>. Os dados do cliente dependem do pedido apenas de forma indireta. Isso é uma dependência transitiva.</p>
           <p>A regra da 3FN é: toda coluna deve depender diretamente da chave, e não de outra coluna comum. Para resolver, extraímos uma tabela cliente.</p>
+          <p>E a categoria? Hoje ela só tem um nome, então ainda não existe uma dependência transitiva de verdade no produto. Separar a categoria é uma escolha de projeto: evita repetir o nome e deixa espaço para novos dados. Se a categoria ganhasse uma descrição, aí sim teríamos <code>cod_produto → categoria → descrição</code>, uma dependência transitiva. Então separamos, mas a 3FN, sozinha, não exigiria isso.</p>
 
           <div class="table-wrap">
             <table>
@@ -325,64 +337,184 @@ UPDATE pedido_plano SET email_cliente = 'ana.souza@email.com' WHERE nome_cliente
             </table>
           </div>
 
+          <p>As colunas marcadas com FK são chaves estrangeiras: colunas que guardam o valor da chave primária de outra tabela e, com isso, ligam as duas. Por exemplo, <code>pedido.id_cliente</code> aponta para <code>cliente.id_cliente</code>.</p>
+          <p>A Figura 1 resume em desenho o esquema da Tabela 4.</p>
+
+          <figure>
+      <svg viewBox="0 0 440 430" role="img" aria-labelledby="fig1-titulo fig1-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="fig1-titulo">Esquema em 3FN da Casa do Café</title>
+        <desc id="fig1-desc">Diagrama com cinco caixas ligadas por linhas: cliente 1:N pedido, pedido 1:N item_pedido, produto 1:N item_pedido e categoria 1:N produto.</desc>
+        <style>
+          .er-box  { fill: var(--color-white, #faf8f4); stroke: var(--color-ink, #1c1916); stroke-width: 1.5; }
+          .er-head { fill: var(--color-ink, #1c1916); }
+          .er-ht   { font: 700 13px var(--font-sans, "Segoe UI", sans-serif); fill: var(--color-paper, #f3efe6); letter-spacing: .04em; }
+          .er-col  { font: 13px var(--font-mono, ui-monospace, monospace); fill: var(--color-ink, #1c1916); }
+          .er-key  { font: 600 10.5px var(--font-mono, ui-monospace, monospace); fill: var(--color-oxblood, #6e2c28); text-anchor: end; }
+          .er-sep  { stroke: var(--color-rule, #d3ccbf); stroke-width: 1; }
+          .er-link { fill: none; stroke: var(--color-oxblood, #6e2c28); stroke-width: 1.75; }
+          .er-lkey { font: 700 12px var(--font-mono, ui-monospace, monospace); fill: var(--color-oxblood, #6e2c28); text-anchor: end; }
+          .er-card { font: 700 13px var(--font-sans, "Segoe UI", sans-serif); fill: var(--color-oxblood-deep, #4e1d1a); }
+          .er-leg  { font: 13px var(--font-sans, "Segoe UI", sans-serif); fill: var(--color-ink-soft, #514c45); }
+        </style>
+
+        <!-- Ligações: 1 = lado "um", N = lado "muitos" -->
+        <path class="er-link" d="M190 49.0 H220 V93.0 H250"/>
+        <path class="er-link" d="M340 104 V176"/>
+        <path class="er-link" d="M190 215.0 H220 V237.0 H250"/>
+        <path class="er-link" d="M100 342 V292"/>
+        <text class="er-card" x="194" y="43.0">1</text>
+        <text class="er-card" x="232" y="87.0">N</text>
+        <text class="er-card" x="346" y="120">1</text>
+        <text class="er-card" x="346" y="170">N</text>
+        <text class="er-card" x="194" y="209.0">1</text>
+        <text class="er-card" x="232" y="231.0">N</text>
+        <text class="er-card" x="106" y="308">N</text>
+        <text class="er-card" x="106" y="336">1</text>
+
+        <!-- cliente -->
+        <rect class="er-box" x="10" y="10" width="180" height="116"/>
+        <rect class="er-head" x="10" y="10" width="180" height="28"/>
+        <text class="er-ht" x="20" y="29">cliente</text>
+        <text class="er-col" x="20" y="53">id_cliente</text>
+        <text class="er-key" x="182" y="53">PK</text>
+        <line class="er-sep" x1="10" x2="190" y1="60" y2="60"/>
+        <text class="er-col" x="20" y="75">nome</text>
+        <line class="er-sep" x1="10" x2="190" y1="82" y2="82"/>
+        <text class="er-col" x="20" y="97">email</text>
+        <text class="er-key" x="182" y="97">UQ</text>
+        <line class="er-sep" x1="10" x2="190" y1="104" y2="104"/>
+        <text class="er-col" x="20" y="119">cidade</text>
+        <!-- pedido -->
+        <rect class="er-box" x="250" y="10" width="180" height="94"/>
+        <rect class="er-head" x="250" y="10" width="180" height="28"/>
+        <text class="er-ht" x="260" y="29">pedido</text>
+        <text class="er-col" x="260" y="53">id_pedido</text>
+        <text class="er-key" x="422" y="53">PK</text>
+        <line class="er-sep" x1="250" x2="430" y1="60" y2="60"/>
+        <text class="er-col" x="260" y="75">data_pedido</text>
+        <line class="er-sep" x1="250" x2="430" y1="82" y2="82"/>
+        <text class="er-col" x="260" y="97">id_cliente</text>
+        <text class="er-key" x="422" y="97">FK</text>
+        <!-- produto -->
+        <rect class="er-box" x="10" y="176" width="180" height="116"/>
+        <rect class="er-head" x="10" y="176" width="180" height="28"/>
+        <text class="er-ht" x="20" y="195">produto</text>
+        <text class="er-col" x="20" y="219">cod_produto</text>
+        <text class="er-key" x="182" y="219">PK</text>
+        <line class="er-sep" x1="10" x2="190" y1="226" y2="226"/>
+        <text class="er-col" x="20" y="241">nome</text>
+        <line class="er-sep" x1="10" x2="190" y1="248" y2="248"/>
+        <text class="er-col" x="20" y="263">id_categoria</text>
+        <text class="er-key" x="182" y="263">FK</text>
+        <line class="er-sep" x1="10" x2="190" y1="270" y2="270"/>
+        <text class="er-col" x="20" y="285">preco_atual</text>
+        <!-- item_pedido -->
+        <rect class="er-box" x="250" y="176" width="180" height="116"/>
+        <rect class="er-head" x="250" y="176" width="180" height="28"/>
+        <text class="er-ht" x="260" y="195">item_pedido</text>
+        <text class="er-col" x="260" y="219">id_pedido</text>
+        <text class="er-key" x="422" y="219">PK, FK</text>
+        <line class="er-sep" x1="250" x2="430" y1="226" y2="226"/>
+        <text class="er-col" x="260" y="241">cod_produto</text>
+        <text class="er-key" x="422" y="241">PK, FK</text>
+        <line class="er-sep" x1="250" x2="430" y1="248" y2="248"/>
+        <text class="er-col" x="260" y="263">quantidade</text>
+        <line class="er-sep" x1="250" x2="430" y1="270" y2="270"/>
+        <text class="er-col" x="260" y="285">preco_unitario</text>
+        <!-- categoria -->
+        <rect class="er-box" x="10" y="342" width="180" height="72"/>
+        <rect class="er-head" x="10" y="342" width="180" height="28"/>
+        <text class="er-ht" x="20" y="361">categoria</text>
+        <text class="er-col" x="20" y="385">id_categoria</text>
+        <text class="er-key" x="182" y="385">PK</text>
+        <line class="er-sep" x1="10" x2="190" y1="392" y2="392"/>
+        <text class="er-col" x="20" y="407">nome</text>
+        <!-- Legenda -->
+        <rect class="er-box" x="250" y="342" width="180" height="88" style="stroke-width:1"/>
+        <text class="er-lkey" x="292" y="362">PK</text>
+        <text class="er-leg" x="304" y="362">chave primária</text>
+        <text class="er-lkey" x="292" y="381">FK</text>
+        <text class="er-leg" x="304" y="381">chave estrangeira</text>
+        <text class="er-lkey" x="292" y="400">UQ</text>
+        <text class="er-leg" x="304" y="400">valor único</text>
+        <text class="er-lkey" x="292" y="419">1:N</text>
+        <text class="er-leg" x="304" y="419">um para muitos</text>
+      </svg>
+            <figcaption><strong>Figura 1.</strong> Esquema final em 3FN da Casa do Café. Cada caixa é uma tabela, e cada linha liga uma chave estrangeira (FK) à chave primária (PK) que ela aponta. O “1:N” quer dizer que um registro de um lado se liga a vários do outro: um cliente faz vários pedidos. Figura elaborada pelo grupo.</figcaption>
+          </figure>
+
           <div class="deep-dive">
             <h4>Aprofundamento · definições formais</h4>
-            <p>Uma tabela está na 2FN se está na 1FN e todo atributo que não faz parte de nenhuma chave candidata depende da chave candidata inteira. Está na 3FN se, para toda dependência X → A, X é uma superchave ou A faz parte de alguma chave candidata. Uma frase popular resume as três primeiras formas: cada coluna depende “da chave, de toda a chave e de nada além da chave”.</p>
+            <p>Uma tabela está na 2FN se está na 1FN e todo atributo que não faz parte de nenhuma chave candidata depende da chave candidata inteira. Está na 3FN se, para toda dependência X → A, X é uma superchave ou A faz parte de alguma chave candidata (CODD, 1972). Chave candidata é um conjunto mínimo de colunas que poderia ser a chave primária: em <code>cliente</code>, tanto <code>id_cliente</code> quanto <code>email</code>. Superchave é qualquer conjunto de colunas que identifica cada linha, mesmo com colunas a mais que o necessário. Uma frase popular (KENT, 1983) resume as três primeiras formas: cada coluna depende “da chave, de toda a chave e de nada além da chave”.</p>
           </div>
 
           <h3>2.5 O resultado em SQL</h3>
+          <p>Agora levamos os dados da tabela plana para as tabelas novas, o que se chama migração. Os scripts foram escritos para o PostgreSQL 16 (THE POSTGRESQL GLOBAL DEVELOPMENT GROUP, 2023). Abaixo, um trecho do Script 2: as tabelas <code>categoria</code>, <code>produto</code> e <code>item_pedido</code> seguem o mesmo padrão e estão no script completo.</p>
           <div class="code-head">
             <span>Script 2 · PostgreSQL 16</span>
             <span>esquema 3FN</span>
           </div>
-          <pre><code>CREATE TABLE categoria (
-    id_categoria SERIAL PRIMARY KEY,
-    nome VARCHAR(40) NOT NULL UNIQUE
-);
-
+          <pre><code class="language-sql">-- O cliente ganha a sua própria tabela. SERIAL: o banco numera sozinho (1, 2, 3...)
 CREATE TABLE cliente (
     id_cliente SERIAL PRIMARY KEY,
-    nome VARCHAR(80) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    cidade VARCHAR(60) NOT NULL
+    nome   VARCHAR(80)  NOT NULL,
+    email  VARCHAR(100) NOT NULL UNIQUE,
+    cidade VARCHAR(60)  NOT NULL
 );
 
-CREATE TABLE produto (
-    cod_produto CHAR(4) PRIMARY KEY,
-    nome VARCHAR(80) NOT NULL,
-    id_categoria INT NOT NULL REFERENCES categoria (id_categoria),
-    preco_atual NUMERIC(8,2) NOT NULL CHECK (preco_atual >= 0)
-);
-
+-- O pedido aponta para o cliente (chave estrangeira) em vez de repetir os dados dele
 CREATE TABLE pedido (
-    id_pedido INT PRIMARY KEY,
+    id_pedido   INT PRIMARY KEY,
     data_pedido DATE NOT NULL,
-    id_cliente INT NOT NULL REFERENCES cliente (id_cliente)
+    id_cliente  INT NOT NULL REFERENCES cliente (id_cliente)
 );
 
-CREATE TABLE item_pedido (
-    id_pedido INT REFERENCES pedido (id_pedido),
-    cod_produto CHAR(4) REFERENCES produto (cod_produto),
-    quantidade INT NOT NULL CHECK (quantidade > 0),
-    preco_unitario NUMERIC(8,2) NOT NULL CHECK (preco_unitario >= 0),
-    PRIMARY KEY (id_pedido, cod_produto)
-);
+-- Migração: o DISTINCT faz cada cliente entrar uma única vez
+INSERT INTO cliente (nome, email, cidade)
+SELECT DISTINCT nome_cliente, email_cliente, cidade_cliente FROM pedido_plano;
 
-INSERT INTO categoria (nome) SELECT DISTINCT nome_categoria FROM pedido_plano;
-INSERT INTO cliente (nome, email, cidade) SELECT DISTINCT nome_cliente, email_cliente, cidade_cliente FROM pedido_plano;
-INSERT INTO produto (cod_produto, nome, id_categoria, preco_atual) SELECT DISTINCT p.cod_produto, p.nome_produto, c.id_categoria, p.preco_unitario FROM pedido_plano p JOIN categoria c ON c.nome = p.nome_categoria;
-INSERT INTO pedido (id_pedido, data_pedido, id_cliente) SELECT DISTINCT p.id_pedido, p.data_pedido, c.id_cliente FROM pedido_plano p JOIN cliente c ON c.email = p.email_cliente;
-INSERT INTO item_pedido (id_pedido, cod_produto, quantidade, preco_unitario) SELECT id_pedido, cod_produto, quantidade, preco_unitario FROM pedido_plano;
+-- Agora o e-mail da Ana mora em um único lugar (UPDATE 1)
+UPDATE cliente SET email = 'ana.nova@email.com' WHERE nome = 'Ana Souza';
 
-UPDATE cliente SET email = 'ana.souza@novo.com' WHERE nome = 'Ana Souza';</code></pre>
+-- Quanto cada cliente gastou?
+SELECT c.nome, SUM(i.quantidade * i.preco_unitario) AS total_gasto
+FROM cliente c
+JOIN pedido p ON p.id_cliente = c.id_cliente
+JOIN item_pedido i ON i.id_pedido = p.id_pedido
+GROUP BY c.nome
+ORDER BY total_gasto DESC;</code></pre>
           
           <p class="code-link"><a href="https://github.com/lchaves06/artigo-normalizacao/blob/main/sql/02_cafe_3fn.sql" target="_blank" rel="noreferrer">Script completo 02_cafe_3fn.sql</a></p>
+
+          <p>O resultado esperado da consulta final é o total gasto por cliente. Para a Ana: 2 × 32,90 + 9,50 + 149,00 = 224,30.</p>
+          <div class="table-wrap">
+            <table>
+              <caption>Tabela 5. Total gasto por cliente.</caption>
+              <thead>
+                <tr>
+                  <th>nome</th>
+                  <th>total_gasto</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Ana Souza</td>
+                  <td>224,30</td>
+                </tr>
+                <tr>
+                  <td>Bruno Lima</td>
+                  <td>32,90</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>A ordem da migração importa: primeiro as tabelas que não dependem de ninguém (categoria e cliente), depois as que apontam para elas (produto e pedido) e, por último, item_pedido. Se a ordem for trocada, o banco reclama das chaves estrangeiras.</p>
 
           <h3>2.6 Erros comuns</h3>
           <ul>
             <li><strong>Achar que normalizar é só “quebrar tabelas”.</strong> Sem identificar dependências antes, a divisão vira palpite.</li>
             <li><strong>Usar DISTINCT na migração sem conferir.</strong> Se o produto aparecesse com dois preços diferentes, a chave primária recusaria a inserção.</li>
-            <li><strong>Esquecer o preço histórico.</strong> Se tirarmos o preço de <code>item_pedido</code>, pedidos antigos mudam de valor quando o produto inflacionar.</li>
+            <li><strong>Esquecer o preço histórico.</strong> Se tirarmos o preço de <code>item_pedido</code>, pedidos antigos mudam de valor quando o preço do produto mudar.</li>
             <li><strong>Criar tabelas sem chaves estrangeiras.</strong> Separar só é seguro se o banco garantir a ligação.</li>
           </ul>
         </section>
@@ -390,7 +522,7 @@ UPDATE cliente SET email = 'ana.souza@novo.com' WHERE nome = 'Ana Souza';</code>
         <!-- Seção 03: BCNF, 4FN e 5FN -->
         <section id="alem-da-3fn">
           <h2><span class="sec">03 · Além da 3FN</span> Quando a 3FN não basta</h2>
-          <p>A maioria dos bancos de projetos comuns para na 3FN, e isso costuma ser suficiente. Mas existem situações em que uma tabela em 3FN ainda guarda informação repetida.</p>
+          <p>Em muitos projetos, a 3FN já resolve a maior parte da repetição. Mas existem situações em que uma tabela em 3FN ainda guarda informação repetida. Para não ficar abstrato, usamos um exemplo pequeno e clássico da literatura para cada forma (DATE, 2004; KENT, 1983).</p>
           
           <div class="table-wrap">
             <table>
@@ -427,11 +559,11 @@ UPDATE cliente SET email = 'ana.souza@novo.com' WHERE nome = 'Ana Souza';</code>
           </div>
 
           <h3>3.1 Forma normal de Boyce-Codd</h3>
-          <p>Uma escola de idiomas com aulas de Inglês, Espanhol e Francês. Cada professor leciona uma única disciplina, e cada aluno tem um só professor em cada disciplina.</p>
-          
+          <p>Uma escola de idiomas oferece aulas de Inglês, Espanhol e Francês. As regras são duas: cada professor leciona uma única disciplina, e cada aluno tem um só professor em cada disciplina. A secretaria guarda tudo em uma tabela chamada <code>aula_3fn</code>.</p>
+
           <div class="table-wrap">
             <table>
-              <caption>Tabela 7. Em 3FN, mas ainda com redundância.</caption>
+              <caption>Tabela 7. Tabela em 3FN, mas ainda com informação repetida.</caption>
               <thead>
                 <tr>
                   <th>aluno</th>
@@ -463,50 +595,238 @@ UPDATE cliente SET email = 'ana.souza@novo.com' WHERE nome = 'Ana Souza';</code>
               </tbody>
             </table>
           </div>
-          
-          <p>O defeito está na dependência <code>professor → disciplina</code>: o professor determina a disciplina, mas não é chave da tabela. A BCNF exige que todo determinante seja uma chave. Separamos em <code>professor_disciplina</code> e <code>matricula</code>.</p>
+
+          <p>As regras da escola viram duas dependências funcionais: <code>(aluno, disciplina) → professor</code> e <code>professor → disciplina</code>. A tabela tem duas <strong>chaves candidatas</strong>, que são as combinações de colunas capazes de identificar uma linha sem repetir: <code>(aluno, disciplina)</code> e <code>(aluno, professor)</code>. Como a coluna <code>disciplina</code> faz parte de uma delas, a tabela passa na 3FN.</p>
+          <p>Mesmo assim, olhe o problema: “Marcos leciona Inglês” aparece uma vez para cada aluno dele. Se a Lúcia passar a lecionar Francês, teremos de alterar todas as linhas dela. E não conseguimos cadastrar um professor novo que ainda não tenha alunos.</p>
+          <p>O defeito está na dependência <code>professor → disciplina</code>: o professor determina a disciplina, mas não é chave da tabela. A BCNF (CODD, 1974) corrige isso com uma regra mais rigorosa que a da 3FN: todo <strong>determinante</strong> precisa ser uma chave. Determinante é a coluna (ou o conjunto de colunas) que fica à esquerda da seta e determina outro dado. Em <code>professor → disciplina</code>, é o <code>professor</code>. A decomposição fica assim:</p>
+
+          <div class="table-wrap">
+            <table>
+              <caption>Tabela 8. Esquema em BCNF.</caption>
+              <thead>
+                <tr>
+                  <th>Tabela</th>
+                  <th>Colunas</th>
+                  <th>Chave</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>professor_disciplina</td>
+                  <td>professor, disciplina</td>
+                  <td>professor</td>
+                </tr>
+                <tr>
+                  <td>matricula</td>
+                  <td>aluno, professor</td>
+                  <td>(aluno, professor)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <div class="code-head">
             <span>Script 3 · PostgreSQL 16</span>
             <span>BCNF</span>
           </div>
-          <pre><code>CREATE TABLE professor_disciplina (
-    professor VARCHAR(40) PRIMARY KEY,
+          <pre><code class="language-sql">-- O professor passa a ser chave: cada professor tem uma única disciplina
+CREATE TABLE professor_disciplina (
+    professor  VARCHAR(40) PRIMARY KEY,
     disciplina VARCHAR(40) NOT NULL
 );
 
+-- A matrícula liga o aluno ao professor (a disciplina vem pelo professor)
 CREATE TABLE matricula (
-    aluno VARCHAR(40),
+    aluno     VARCHAR(40),
     professor VARCHAR(40) REFERENCES professor_disciplina (professor),
     PRIMARY KEY (aluno, professor)
-);</code></pre>
-          
+);
+
+INSERT INTO professor_disciplina SELECT DISTINCT professor, disciplina FROM aula_3fn;
+INSERT INTO matricula SELECT aluno, professor FROM aula_3fn;
+
+-- A Lúcia passa a lecionar Francês: agora só UMA linha muda
+UPDATE professor_disciplina SET disciplina = 'Francês' WHERE professor = 'Lúcia';</code></pre>
+
           <p class="code-link"><a href="https://github.com/lchaves06/artigo-normalizacao/blob/main/sql/03_bcnf.sql" target="_blank" rel="noreferrer">Script completo 03_bcnf.sql, com trigger de validação</a></p>
 
+          <p><strong>Onde a BCNF falha.</strong> A regra antiga se perde. Antes da decomposição, a regra “cada aluno tem um só professor por disciplina” era garantida pela chave <code>(aluno, disciplina)</code>. Depois, aluno e disciplina ficam em tabelas diferentes, e nenhuma chave garante a regra sozinha. Por isso precisamos de um <strong>gatilho</strong> (<em>trigger</em>), que é um código que o banco executa sozinho quando alguém insere dados, ou de uma regra no programa. O gatilho do script completo é simples de propósito: ele só confere novas matrículas. Nem toda tabela pode ser levada à BCNF sem perder alguma regra, e, quando isso acontece, ficar na 3FN pode ser a escolha mais prática. O importante é justificar a decisão.</p>
+
+          <div class="deep-dive">
+            <h4>Aprofundamento · definição formal da BCNF</h4>
+            <p>Uma tabela está na BCNF se, para toda dependência funcional não trivial X → Y, X é uma superchave da tabela. Superchave é qualquer conjunto de colunas que identifica cada linha, mesmo que tenha colunas além do necessário. O nome vem de Raymond F. Boyce e Edgar F. Codd, e Codd a apresentou em 1974 como uma versão mais forte da 3FN (CODD, 1974). A 3FN sempre pode ser obtida sem perder informação e sem perder dependências. A BCNF sempre pode ser obtida sem perder informação, mas nem sempre preservando todas as dependências.</p>
+          </div>
+
           <h3>3.2 Quarta forma normal</h3>
-          <p>Trata dependências multivaloradas (por exemplo <code>curso →→ livro | docente</code>). Quando listas independentes são guardadas juntas, geram um produto cartesiano desnecessário. A 4FN separa cada lista em sua própria tabela (<code>curso_livro</code> e <code>curso_docente</code>).</p>
+          <p>Uma faculdade registra, para cada curso, os livros indicados e os docentes que podem lecioná-lo. Os livros de um curso não dependem de quem leciona, e os docentes não dependem dos livros. Os títulos são fictícios. Se guardarmos tudo em uma tabela só, precisamos escrever todas as combinações possíveis:</p>
+
+          <div class="table-wrap">
+            <table>
+              <caption>Tabela 9. curso_livro_docente: duas listas independentes viram todas as combinações possíveis.</caption>
+              <thead>
+                <tr>
+                  <th>curso</th>
+                  <th>livro</th>
+                  <th>docente</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Banco de Dados</td>
+                  <td>Fundamentos de SQL</td>
+                  <td>Helena</td>
+                </tr>
+                <tr>
+                  <td>Banco de Dados</td>
+                  <td>Fundamentos de SQL</td>
+                  <td>Rui</td>
+                </tr>
+                <tr>
+                  <td>Banco de Dados</td>
+                  <td>Modelagem Relacional Prática</td>
+                  <td>Helena</td>
+                </tr>
+                <tr>
+                  <td>Banco de Dados</td>
+                  <td>Modelagem Relacional Prática</td>
+                  <td>Rui</td>
+                </tr>
+                <tr>
+                  <td>Redes</td>
+                  <td>Redes de Computadores</td>
+                  <td>Marta</td>
+                </tr>
+                <tr>
+                  <td>Redes</td>
+                  <td>Segurança Básica</td>
+                  <td>Marta</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Não existe aqui nenhuma dependência funcional entre as três colunas, então a tabela já está na BCNF. Mesmo assim, ela é ruim: para indicar um livro novo no curso de Banco de Dados, é preciso inserir uma linha para cada docente. Se esquecermos uma, a tabela passa a dizer que só o Rui usa aquele livro, o que não faz sentido.</p>
+          <p>O que existe aqui é uma <strong>dependência multivalorada</strong>: para cada curso, existe um conjunto de livros e um conjunto de docentes, e um conjunto não influencia o outro. Escrevemos <code>curso →→ livro | docente</code>. A 4FN (FAGIN, 1977) pede que cada lista independente tenha a sua própria tabela:</p>
+
+          <div class="code-head">
+            <span>Script 4 · PostgreSQL 16</span>
+            <span>4FN</span>
+          </div>
+          <pre><code class="language-sql">-- Uma tabela para cada lista independente
+CREATE TABLE curso_livro   (curso VARCHAR(40), livro   VARCHAR(80), PRIMARY KEY (curso, livro));
+CREATE TABLE curso_docente (curso VARCHAR(40), docente VARCHAR(40), PRIMARY KEY (curso, docente));
+
+INSERT INTO curso_livro   SELECT DISTINCT curso, livro   FROM curso_livro_docente;
+INSERT INTO curso_docente SELECT DISTINCT curso, docente FROM curso_livro_docente;
+
+-- Livro novo: UMA linha, e não uma por docente
+INSERT INTO curso_livro VALUES ('Banco de Dados', 'Índices na Prática');
+
+-- Reconstrução: todas as combinações livro x docente de cada curso
+SELECT cl.curso, cl.livro, cd.docente
+FROM curso_livro cl
+JOIN curso_docente cd ON cd.curso = cl.curso;
+-- Esperado: 8 linhas</code></pre>
+
           <p class="code-link"><a href="https://github.com/lchaves06/artigo-normalizacao/blob/main/sql/04_4fn.sql" target="_blank" rel="noreferrer">Script completo 04_4fn.sql</a></p>
 
+          <p>O livro novo entrou com uma única linha, e a consulta de reconstrução devolve todas as combinações, inclusive a do livro novo com os dois docentes. São 8 linhas: 6 de Banco de Dados (3 livros vezes 2 docentes) e 2 de Redes.</p>
+          <p><strong>Onde a 4FN falha.</strong> Nem toda tabela de três colunas é 4FN. Se cada docente usa o seu próprio livro naquele curso (por exemplo, a Helena usa o livro A e o Rui usa o livro B), as listas deixam de ser independentes, porque o livro passa a depender do docente. Separar as tabelas, nesse caso, faria perder a informação de quem usa qual livro. Antes de aplicar a 4FN, pergunte a quem conhece o negócio se as duas listas realmente são independentes.</p>
+
+          <div class="deep-dive">
+            <h4>Aprofundamento · definição formal da 4FN</h4>
+            <p>Uma tabela está na 4FN se, para toda dependência multivalorada não trivial X →→ Y, X é uma superchave da tabela. A 4FN foi proposta por Ronald Fagin em 1977 (FAGIN, 1977). Toda tabela na 4FN também está na BCNF.</p>
+          </div>
+
           <h3>3.3 Quinta forma normal</h3>
-          <p>Trata dependências de junção (representantes, empresas e produtos). Quando um fato só faz sentido cruzando três lados e gera redundâncias, decompomos em três tabelas de pares e validamos com um teste de junção sem perdas usando <code>EXCEPT</code>.</p>
+          <p>Uma distribuidora tem representantes comerciais, empresas fornecedoras e produtos. Uma linha (Ana, Alfa, Caneta) significa que a Ana vende canetas da Alfa. Na tabela, a coluna do representante se chama <code>agente</code>. A regra do negócio é: se a Ana atende a Alfa, a Alfa fabrica canetas e a Ana vende canetas, então a Ana vende canetas da Alfa. Este é um exemplo clássico, na linha do guia de Kent (1983).</p>
+
+          <div class="table-wrap">
+            <table>
+              <caption>Tabela 10. representacao: as três colunas juntas.</caption>
+              <thead>
+                <tr>
+                  <th>agente</th>
+                  <th>empresa</th>
+                  <th>produto</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Ana</td>
+                  <td>Alfa</td>
+                  <td>Caneta</td>
+                </tr>
+                <tr>
+                  <td>Ana</td>
+                  <td>Alfa</td>
+                  <td>Lápis</td>
+                </tr>
+                <tr>
+                  <td>Ana</td>
+                  <td>Beta</td>
+                  <td>Caneta</td>
+                </tr>
+                <tr>
+                  <td>Bia</td>
+                  <td>Alfa</td>
+                  <td>Caneta</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Esta tabela não tem dependência funcional nem multivalorada. Observe que a Ana atende a Alfa e a Beta e vende Caneta e Lápis, mas não existe a linha (Ana, Beta, Lápis), porque a Beta não fabrica lápis. Ou seja, não são todas as combinações possíveis, e a 4FN não consegue separar a tabela em duas. Mesmo assim, há informação repetida: “Ana atende a Alfa” está escrito duas vezes (linhas 1 e 2), e “Alfa fabrica Caneta” também (linhas 1 e 4).</p>
+          <p>A saída é separar em três tabelas, uma para cada par: <code>agente_empresa</code>, <code>empresa_produto</code> e <code>agente_produto</code>. Isso se chama <strong>dependência de junção</strong>: a tabela original só pode ser reconstruída juntando as três (FAGIN, 1979; KENT, 1983). Para saber se a divisão é segura, fazemos um <strong>teste de junção sem perdas</strong>: juntamos as três tabelas de volta e conferimos se recuperamos exatamente as linhas originais. Em SQL, isso é um <code>JOIN</code> triplo comparado com a tabela original usando <code>EXCEPT</code>, que devolve as linhas que estão em uma consulta e não estão na outra.</p>
+
+          <div class="code-head">
+            <span>Script 5 · PostgreSQL 16</span>
+            <span>5FN</span>
+          </div>
+          <pre><code class="language-sql">-- Três tabelas de pares
+CREATE TABLE agente_empresa  (agente  VARCHAR(40), empresa VARCHAR(40), PRIMARY KEY (agente, empresa));
+CREATE TABLE empresa_produto (empresa VARCHAR(40), produto VARCHAR(40), PRIMARY KEY (empresa, produto));
+CREATE TABLE agente_produto  (agente  VARCHAR(40), produto VARCHAR(40), PRIMARY KEY (agente, produto));
+
+INSERT INTO agente_empresa  SELECT DISTINCT agente, empresa  FROM representacao;
+INSERT INTO empresa_produto SELECT DISTINCT empresa, produto FROM representacao;
+INSERT INTO agente_produto  SELECT DISTINCT agente, produto  FROM representacao;
+
+-- Teste: juntar as três e tirar as linhas da original. Deve voltar vazio.
+SELECT ae.agente, ae.empresa, ep.produto
+FROM agente_empresa ae
+JOIN empresa_produto ep ON ep.empresa = ae.empresa
+JOIN agente_produto ap ON ap.agente = ae.agente AND ap.produto = ep.produto
+EXCEPT
+SELECT agente, empresa, produto FROM representacao;
+-- Esperado: 0 linhas</code></pre>
+
           <p class="code-link"><a href="https://github.com/lchaves06/artigo-normalizacao/blob/main/sql/05_5fn.sql" target="_blank" rel="noreferrer">Script completo 05_5fn.sql</a></p>
+
+          <p>A consulta volta com 0 linhas. No script completo há uma segunda consulta, no sentido contrário, que também deve voltar vazia. Juntas, mostram que a junção reproduz a tabela original sem sobras nem faltas.</p>
+          <p><strong>Onde a 5FN falha.</strong> A 5FN só vale se a regra do negócio for verdadeira. Ela é uma afirmação sobre os dados, e não algo que se descobre olhando algumas linhas. Se a Ana puder vender canetas da Alfa sem que a regra valha (por exemplo, por causa de um contrato exclusivo), a junção das três tabelas geraria linhas falsas. Além disso, neste exemplo pequeno as três tabelas guardam até mais valores que a original (18 contra 12), então o ganho não é espaço, e sim a regra do negócio ficar expressa na estrutura. Esse tipo de dependência também é difícil de descobrir e raro na prática. Por isso muitos livros mostram poucos exemplos reais de 5FN, e muitos projetos terminam na 3FN ou na BCNF.</p>
+
+          <div class="deep-dive">
+            <h4>Aprofundamento · definição formal da 5FN</h4>
+            <p>Uma tabela está na 5FN (também chamada de forma normal de projeção-junção) se toda dependência de junção dela é consequência das chaves candidatas. Na prática: a tabela não pode ser decomposta em tabelas menores cuja junção a reconstrua, a não ser que a decomposição seja ditada pelas chaves. A forma foi apresentada por Fagin em 1979 (FAGIN, 1979). Toda tabela na 5FN também está na 4FN.</p>
+          </div>
         </section>
 
         <!-- Seção 04: Limitações -->
         <section id="limitacoes">
           <h2><span class="sec">04 · Limites</span> Quando normalizar não é o objetivo</h2>
-          <p>A normalização evita inconsistências em sistemas transacionais (OLTP), mas a decomposição rigorosa tem um custo de desempenho e de complexidade. Não existem soluções perfeitas, apenas trocas.</p>
-          <p>O efeito colateral de separar uma tabela grande em várias menores é a necessidade de vários <code>JOIN</code>s. Com milhões de registros, cruzar cinco ou seis tabelas para uma listagem de vendas pode sobrecarregar o SGBD.</p>
+          <p>A normalização evita inconsistências em sistemas transacionais, aqueles do dia a dia, como vendas e cadastros (OLTP), mas a decomposição rigorosa tem um custo de desempenho e de complexidade. Não existem soluções perfeitas, apenas trocas.</p>
+          <p>O efeito colateral de separar uma tabela grande em várias menores é a necessidade de vários <code>JOIN</code>s. Com milhões de registros, cruzar cinco ou seis tabelas para uma listagem de vendas pode ficar lento, principalmente sem índices nas chaves estrangeiras. Índices são estruturas que ajudam o banco a achar linhas rapidamente, como o índice de um livro.</p>
           
           <h3>4.1 OLTP e OLAP</h3>
           <ul>
-            <li><strong>OLTP.</strong> Sistemas do dia a dia: e-commerce, caixa, cadastro. O foco é inserir, atualizar e excluir sem anomalias. Normalizar até a 3FN é a regra.</li>
-            <li><strong>OLAP.</strong> Relatórios e análise histórica. O foco é leitura. A desnormalização controlada (estrela ou floco de neve) e colunas pré-agregadas aceleram os relatórios.</li>
+            <li><strong>OLTP.</strong> Sistemas do dia a dia: e-commerce, caixa, cadastro. O foco é inserir, atualizar e excluir sem anomalias. Nesses sistemas, a 3FN costuma ser um bom ponto de equilíbrio, mas a decisão depende das regras do negócio e do volume de dados.</li>
+            <li><strong>OLAP.</strong> Relatórios e análise histórica. O foco é leitura. A desnormalização controlada (guardar de propósito alguma informação repetida para a consulta ficar mais rápida), como nos modelos estrela e floco de neve, e as colunas pré-agregadas aceleram os relatórios.</li>
           </ul>
           
           <div class="deep-dive">
             <h4>Aprofundamento · o custo dos JOINs</h4>
-            <p>Um <code>INNER JOIN</code> entre duas tabelas grandes sem índices adequados usa algoritmos como hash join ou nested loop. Dez milhões de pedidos contra cinquenta milhões de itens, só para o faturamento mensal, é um gasto que um ambiente analítico pré-calculado pode evitar.</p>
+            <p>Um <code>INNER JOIN</code> entre duas tabelas grandes sem índices adequados usa algoritmos como hash join ou nested loop. Imagine, por exemplo (números ilustrativos), dez milhões de pedidos cruzados com cinquenta milhões de itens só para calcular o faturamento mensal: é um gasto que um ambiente analítico pré-calculado pode evitar.</p>
           </div>
         </section>
 
@@ -547,7 +867,7 @@ CREATE TABLE matricula (
         <!-- Seção 07: Conclusão -->
         <section id="conclusao">
           <h2><span class="sec">07 · Fecho</span> Organizar dados é garantir a vida útil do sistema</h2>
-          <p>Normalizar vai além de seguir regras teóricas: evita anomalias de inserção, atualização e exclusão que corrompem o negócio no dia a dia. Ao transformar a planilha da Casa do Café em tabelas relacionais, uma alteração de e-mail passa a acontecer em um único lugar.</p>
+          <p>Normalizar vai além de seguir regras teóricas: evita anomalias de inserção, atualização e exclusão que deixam os dados inconsistentes no dia a dia. Ao transformar a planilha da Casa do Café em tabelas relacionais, uma alteração de e-mail passa a acontecer em um único lugar.</p>
           <p>Conhecer as formas, das primeiras às mais avançadas, permite decidir quando aplicar cada regra e quando uma desnormalização controlada é a escolha certa.</p>
         </section>
 
@@ -556,6 +876,7 @@ CREATE TABLE matricula (
           <h2><span class="sec">08 · Consulta</span> Glossário</h2>
           <div class="table-wrap">
             <table>
+              <caption>Glossário dos termos usados no artigo.</caption>
               <thead>
                 <tr>
                   <th>Termo</th>
@@ -563,6 +884,10 @@ CREATE TABLE matricula (
                 </tr>
               </thead>
               <tbody>
+                <tr>
+                  <td>SGBD</td>
+                  <td>Sistema Gerenciador de Banco de Dados: o programa que guarda e consulta os dados, como o PostgreSQL.</td>
+                </tr>
                 <tr>
                   <td>Chave primária (PK)</td>
                   <td>Coluna ou conjunto de colunas que identifica cada linha.</td>
@@ -572,129 +897,187 @@ CREATE TABLE matricula (
                   <td>Coluna que aponta para a chave primária de outra tabela.</td>
                 </tr>
                 <tr>
+                  <td>Chave candidata</td>
+                  <td>Conjunto mínimo de colunas que poderia ser a chave primária. Em <code>cliente</code>, <code>id_cliente</code> e <code>email</code>.</td>
+                </tr>
+                <tr>
+                  <td>Superchave</td>
+                  <td>Qualquer conjunto de colunas que identifica cada linha, mesmo com colunas a mais que o necessário.</td>
+                </tr>
+                <tr>
                   <td>Dependência funcional</td>
                   <td>Relação A → B em que conhecer A basta para descobrir B.</td>
                 </tr>
                 <tr>
+                  <td>Determinante</td>
+                  <td>A coluna (ou conjunto de colunas) à esquerda da seta. Em <code>professor → disciplina</code>, é o professor.</td>
+                </tr>
+                <tr>
+                  <td>Dependência parcial</td>
+                  <td>Uma coluna que depende de apenas uma parte da chave composta (problema da 2FN).</td>
+                </tr>
+                <tr>
+                  <td>Dependência transitiva</td>
+                  <td>Uma coluna que depende da chave só por meio de outra coluna comum (problema da 3FN).</td>
+                </tr>
+                <tr>
+                  <td>Dependência multivalorada</td>
+                  <td>Para cada valor de uma coluna existem duas listas independentes de valores (problema da 4FN).</td>
+                </tr>
+                <tr>
+                  <td>Dependência de junção</td>
+                  <td>Tabela que só pode ser reconstruída juntando três ou mais tabelas menores (problema da 5FN).</td>
+                </tr>
+                <tr>
                   <td>Anomalia</td>
                   <td>Problema causado por dados repetidos: inserção, atualização ou exclusão.</td>
+                </tr>
+                <tr>
+                  <td>Gatilho (<em>trigger</em>)</td>
+                  <td>Código que o banco executa sozinho quando alguém insere ou altera dados.</td>
+                </tr>
+                <tr>
+                  <td>Índice</td>
+                  <td>Estrutura que ajuda o banco a achar linhas rapidamente, como o índice de um livro.</td>
+                </tr>
+                <tr>
+                  <td>Desnormalização</td>
+                  <td>Guardar de propósito alguma informação repetida para as consultas ficarem mais rápidas.</td>
+                </tr>
+                <tr>
+                  <td>OLTP e OLAP</td>
+                  <td>OLTP: sistemas do dia a dia, como vendas e cadastros. OLAP: sistemas de relatórios e análise histórica.</td>
+                </tr>
+                <tr>
+                  <td>Junção sem perdas</td>
+                  <td>Dividir uma tabela de modo que, ao juntar as partes de volta, se recupere exatamente a original.</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </section>
 
-        <!-- Seção 09: Referências -->
-        <section id="referencias">
-          <h2><span class="sec">09 · Fontes</span> Referências</h2>
+        <!-- Seção 09: Links -->
+        <section id="links">
+          <h2><span class="sec">09 · Leitura</span> Para ir além</h2>
+          <p>Poucos links, cada um com o motivo de valer a leitura.</p>
           <ul class="refs">
-            <li><a href="https://www.postgresql.org/docs/current/ddl.html" target="_blank" rel="noreferrer">PostgreSQL, Data Definition</a> — criação de tabelas, chaves e restrições.</li>
-            <li><a href="https://www.postgresql.org/docs/current/triggers.html" target="_blank" rel="noreferrer">PostgreSQL, Triggers</a> — o gatilho do script de BCNF.</li>
-            <li><a href="https://www.alura.com.br/artigos/normalizacao-banco-de-dados-estrutura" target="_blank" rel="noreferrer">Alura, Normalização de banco de dados</a> — linguagem acessível e exemplos progressivos.</li>
-            <li><a href="https://www.datacamp.com/pt/tutorial/normalization-in-dbms" target="_blank" rel="noreferrer">DataCamp: normalização em SGBDs </a> — tabelas antes e depois.</li>
-            <li><a href="https://www.devmedia.com.br/tecnicas-e-conceitos-de-normalizacao-de-dados/28619" target="_blank" rel="noreferrer">DevMedia, Técnicas e conceitos de normalização</a> — formalismo em português.</li>
-            <li>Codd, E. F. (1970). <em>A relational model of data for large shared data banks</em>. Communications of the ACM, 13(6), 377–387. <a href="https://doi.org/10.1145/362384.362685" target="_blank" rel="noreferrer">DOI 10.1145/362384.362685</a>.</li>
-            <li>Codd, E. F. (1972). Further normalization of the data base relational model. In Rustin, R. (ed.), Data Base Systems.</li>
-            <li>Codd, E. F. (1974). Recent investigations in relational data base systems. Information Processing 74.</li>
-            <li>Date, C. J. (2004). Introdução a sistemas de bancos de dados. 8. ed. Rio de Janeiro: Elsevier.</li>
-            <li>Fagin, R. (1977). Multivalued dependencies and a new normal form for relational databases. ACM TODS, 2(3), 262–278.</li>
-            <li>Fagin, R. (1979). Normal forms and relational database operators. ACM SIGMOD.</li>
-            <li>Kent, W. (1983). <em>A simple guide to five normal forms in relational database theory</em>. Communications of the ACM, 26(2), 120–125. <a href="https://doi.org/10.1145/358024.358054" target="_blank" rel="noreferrer">DOI 10.1145/358024.358054</a>.</li>
-            <li><a href="https://www.postgresql.org/docs/16/" target="_blank" rel="noreferrer">PostgreSQL 16 Documentation</a>.</li>
+            <li><a href="https://www.postgresql.org/docs/current/ddl.html" target="_blank" rel="noreferrer">PostgreSQL, Data Definition</a>: ensina a criar tabelas, chaves e restrições, que usamos em todos os scripts.</li>
+            <li><a href="https://www.postgresql.org/docs/current/triggers.html" target="_blank" rel="noreferrer">PostgreSQL, Triggers</a>: explica o gatilho do script de BCNF.</li>
+            <li><a href="https://www.alura.com.br/artigos/normalizacao-banco-de-dados-estrutura" target="_blank" rel="noreferrer">Alura, Normalização de banco de dados</a>: linguagem acessível e exemplos progressivos, em português.</li>
+            <li><a href="https://www.datacamp.com/pt/tutorial/normalization-in-dbms" target="_blank" rel="noreferrer">DataCamp, normalização em SGBDs</a>: definições claras e tabelas antes e depois de cada forma normal.</li>
+            <li><a href="https://www.devmedia.com.br/tecnicas-e-conceitos-de-normalizacao-de-dados/28619" target="_blank" rel="noreferrer">DevMedia, Técnicas e conceitos de normalização</a>: liga a teoria de Codd e Fagin a explicações em português.</li>
+          </ul>
+        </section>
+
+        <!-- Seção 10: Referências -->
+        <section id="referencias">
+          <h2><span class="sec">10 · Fontes</span> Referências</h2>
+          <ul class="refs">
+            <li>CODD, E. F. A relational model of data for large shared data banks. <em>Communications of the ACM</em>, v. 13, n. 6, p. 377-387, 1970. <a href="https://doi.org/10.1145/362384.362685" target="_blank" rel="noreferrer">DOI 10.1145/362384.362685</a>.</li>
+            <li>CODD, E. F. Further normalization of the data base relational model. In: RUSTIN, R. (ed.). <em>Data Base Systems</em>. Courant Computer Science Symposia 6. Prentice-Hall, 1972.</li>
+            <li>CODD, E. F. Recent investigations in relational data base systems. In: <em>Information Processing 74: Proceedings of IFIP Congress 74</em>. Amsterdam: North-Holland, 1974.</li>
+            <li>DATE, C. J. <em>Introdução a sistemas de bancos de dados</em>. 8. ed. Rio de Janeiro: Elsevier, 2004.</li>
+            <li>FAGIN, R. Multivalued dependencies and a new normal form for relational databases. <em>ACM Transactions on Database Systems</em>, v. 2, n. 3, p. 262-278, 1977.</li>
+            <li>FAGIN, R. Normal forms and relational database operators. In: ACM SIGMOD International Conference on Management of Data, 1979, p. 153-160.</li>
+            <li>KENT, W. A simple guide to five normal forms in relational database theory. <em>Communications of the ACM</em>, v. 26, n. 2, p. 120-125, 1983. <a href="https://doi.org/10.1145/358024.358054" target="_blank" rel="noreferrer">DOI 10.1145/358024.358054</a>.</li>
+            <li>THE POSTGRESQL GLOBAL DEVELOPMENT GROUP. <em>PostgreSQL 16 Documentation</em>. 2023. Disponível em: <a href="https://www.postgresql.org/docs/16/" target="_blank" rel="noreferrer">https://www.postgresql.org/docs/16/</a>. Acesso em: 19 out. 2026.</li>
           </ul>
         </section>
 
         <!-- Seção 10: Autores -->
         <section id="autores">
-          <h2><span class="sec">10 · Quem escreveu</span> Sobre os autores</h2>
+          <h2><span class="sec">11 · Quem escreveu</span> Sobre os autores</h2>
           <div class="authors">
-            
+
             <article class="author">
-              <img src="imagens/marcelo.jpg" alt="Foto de Marcelo" class="author-photo">
+              <img src="imagens/marcelo.jpg" alt="Foto de Marcelo Ludin" class="author-photo" width="48" height="48">
               <div>
                 <h3>Marcelo Ludin</h3>
-                <p>Estudante de Análise e Desenvolvimento de Sistemas. Programação, Desenvolvimento Web e Segurança da Informação.</p>
+                <p>Estudante de Análise e Desenvolvimento de Sistemas, [X]º semestre. Interesse: banco de dados e backend.</p>
                 <p class="links"><a href="https://github.com/MarceloLudin" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://www.linkedin.com/in/marcelo-ludin-050a9a340" target="_blank" rel="noreferrer">LinkedIn</a></p>
               </div>
             </article>
 
             <article class="author">
-              <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231c1916'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" alt="Foto de perfil de Carina Tutihashi" class="author-photo">
+              <img src="imagens/carina.jpg" alt="Foto de Carina Tutihashi" class="author-photo" width="48" height="48">
               <div>
                 <h3>Carina Tutihashi</h3>
-                <p>Estudante de Análise e Desenvolvimento de Sistemas. Criação de Interfaces e desenvolvimento web.</p>
+                <p>Estudante de Análise e Desenvolvimento de Sistemas, [X]º semestre. Interesse: modelagem e desenvolvimento web.</p>
                 <p class="links"><a href="https://github.com/carinatut14-wq" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://www.linkedin.com/in/carina-tutihashi-96b3a33a4" target="_blank" rel="noreferrer">LinkedIn</a></p>
               </div>
             </article>
 
             <article class="author">
-              <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231c1916'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" alt="Foto de perfil de Rafael Azevedo" class="author-photo">
+              <img src="imagens/rafael.jpg" alt="Foto de Rafael Azevedo" class="author-photo" width="48" height="48">
               <div>
                 <h3>Rafael Azevedo</h3>
-                <p>Estudante de Ciência da Computação. Programação e banco de dados.</p>
-                <p class="links"><a href="https://github.com/Rafael1708" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://www.linkedin.com/in/rafael-azevedo-7856302a3" target="_blank" rel="noreferrer">LinkedIn</a></p>
+                <p>Estudante de Ciência da Computação, [X]º semestre. Interesse: arquitetura de software e banco de dados.</p>
+                <p class="links"><a href="https://github.com/COLOQUE-USUARIO-DO-RAFAEL" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://www.linkedin.com/in/rafael-azevedo-7856302a3" target="_blank" rel="noreferrer">LinkedIn</a></p>
               </div>
             </article>
 
             <article class="author">
-              <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231c1916'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" alt="Foto de perfil de Ana Clara Macedo" class="author-photo">
+              <img src="imagens/ana-clara.jpg" alt="Foto de Ana Clara Macedo" class="author-photo" width="48" height="48">
               <div>
                 <h3>Ana Clara Macedo</h3>
-                <p>Estudante de Ciência da Computação. Modelagem e Desenvolvimento Web.</p>
+                <p>Estudante de Ciência da Computação, [X]º semestre. Interesse: engenharia de dados e sistemas.</p>
                 <p class="links"><a href="https://github.com/AnaClaraMaced" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://www.linkedin.com/in/ana-clara-macedo-4b327337b" target="_blank" rel="noreferrer">LinkedIn</a></p>
               </div>
             </article>
 
             <article class="author">
-              <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231c1916'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" alt="Foto de perfil de Murilo dos Santos" class="author-photo">
+              <img src="imagens/murilo.jpg" alt="Foto de Murilo dos Santos" class="author-photo" width="48" height="48">
               <div>
                 <h3>Murilo dos Santos</h3>
-                <p>Estudante de Ciência da Computação. Infraestrutura e redes.</p>
-                <p class="links"><a href="https://github.com/MuriloSantos111" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://www.linkedin.com/in/murilo-dos-santos-80a3b7424" target="_blank" rel="noreferrer">LinkedIn</a></p>
+                <p>Estudante de Ciência da Computação, [X]º semestre. Interesse: infraestrutura e redes.</p>
+                <p class="links"><a href="https://github.com/COLOQUE-USUARIO-DO-MURILO" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://www.linkedin.com/in/murilo-dos-santos-80a3b7424" target="_blank" rel="noreferrer">LinkedIn</a></p>
               </div>
             </article>
 
             <article class="author">
-              <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231c1916'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" alt="Foto de perfil de Lucas Rodrigues" class="author-photo">
+              <img src="imagens/lucas.jpg" alt="Foto de Lucas Rodrigues" class="author-photo" width="48" height="48">
               <div>
                 <h3>Lucas Rodrigues</h3>
-                <p>Estudante de Ciência da Computação. Programação e lógica.</p>
-                <p class="links"><a href="https://github.com/lchaves06" target="_blank" rel="noreferrer">GitHub</a></p>
+                <p>Estudante de Ciência da Computação, [X]º semestre. Interesse: programação e lógica.</p>
+                <p class="links"><a href="https://github.com/lchaves06" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://www.linkedin.com/in/COLOQUE-PERFIL-DO-LUCAS" target="_blank" rel="noreferrer">LinkedIn</a></p>
               </div>
             </article>
 
             <article class="author">
-              <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231c1916'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" alt="Foto de perfil de Pablo Gonçalves" class="author-photo">
+              <img src="imagens/pablo.jpg" alt="Foto de Pablo Gonçalves" class="author-photo" width="48" height="48">
               <div>
                 <h3>Pablo Gonçalves</h3>
-                <p>Estudante de Análise e Desenvolvimento de Sistemas. Banco de dados e desenvolvimento.</p>
-                <p class="links"><a href="https://github.com/PabloFDSNTS" target="_blank" rel="noreferrer">GitHub</a></p>
+                <p>Estudante de Análise e Desenvolvimento de Sistemas, [X]º semestre. Interesse: banco de dados e desenvolvimento.</p>
+                <p class="links"><a href="https://github.com/COLOQUE-USUARIO-DO-PABLO" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://www.linkedin.com/in/COLOQUE-PERFIL-DO-PABLO" target="_blank" rel="noreferrer">LinkedIn</a></p>
               </div>
             </article>
 
           </div>
+          <p>As opiniões expressas neste artigo são dos autores. Todos os dados dos exemplos são fictícios. Fotos e perfis são publicados com a autorização de cada integrante.</p>
         </section>
 
       </main>
     </div>
 
-    <!-- ================= RODAPÉ (COLOFÃO) ================= -->
+    <!-- ================= RODAPÉ (Informações do Projeto) ================= -->
     <footer class="colophon">
       <div class="colophon-inner">
         <div>
-          <h2>Colofão</h2>
+          <h2>Informações do Projeto</h2>
           <p>Projeto acadêmico de modelagem de banco de dados, 2026.</p>
           <p>Licença <a href="https://creativecommons.org/licenses/by/4.0/deed.pt-br" target="_blank" rel="noreferrer">CC BY 4.0</a>. Atribuição requerida.</p>
         </div>
         <div>
           <h2>Edição</h2>
           <p>Publicado em 17/10/2026.</p>
-          <p>Revisão em 17/10/2026.</p>
-          <p>SGBD alvo: PostgreSQL 16.</p>
+          <p>Revisão em 19/10/2026.</p>
+          <p>Banco de dados: PostgreSQL 16.</p>
         </div>
         <div>
           <h2>Código</h2>
           <p><a href="https://github.com/lchaves06/artigo-normalizacao" target="_blank" rel="noreferrer">Repositório no GitHub</a></p>
+          <p><a href="https://github.com/lchaves06/artigo-normalizacao/issues" target="_blank" rel="noreferrer">Contato: abra uma issue no repositório</a></p>
         </div>
       </div>
       <div class="colophon-bar">
@@ -702,6 +1085,9 @@ CREATE TABLE matricula (
         <a href="#topo">Voltar ao topo</a>
       </div>
     </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
 
     <!-- Script de Progresso de Leitura -->
     <script>
